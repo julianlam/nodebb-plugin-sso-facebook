@@ -1,0 +1,31 @@
+{
+  "name": "nodebb-plugin-sso-facebook",
+  "version": "0.1.0-1",
+  "description": "NodeBB Facebook SSO",
+  "main": "library.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/julianlam/nodebb-plugin-sso-facebook"
+  },
+  "keywords": [
+    "nodebb",
+    "plugin",
+    "facebook",
+    "sso",
+    "single sign on",
+    "registration"
+  ],
+  "author": {
+    "name": "Julian Lam",
+    "email": "julian@nodebb.org"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/julianlam/nodebb-plugin-sso-facebook/issues"
+  },
+  "readme": "",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "passport-facebook": "~1.0.2"
+  }
+}

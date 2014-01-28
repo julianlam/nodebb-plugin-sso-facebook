@@ -1,7 +1,7 @@
 (function(module) {
 	"use strict";
 
-	var User = module.parent.require('./user'),
+	var user = module.parent.require('./user'),
 		db = module.parent.require('../src/database'),
 		passport = module.parent.require('passport'),
   		passportFacebook = require('passport-facebook').Strategy,

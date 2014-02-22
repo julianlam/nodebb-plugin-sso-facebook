@@ -2,6 +2,7 @@
 	"use strict";
 
 	var user = module.parent.require('./user'),
+		meta = module.parent.require('./meta'),
 		db = module.parent.require('../src/database'),
 		passport = module.parent.require('passport'),
   		passportFacebook = require('passport-facebook').Strategy,

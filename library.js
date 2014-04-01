@@ -13,14 +13,23 @@
 	var constants = Object.freeze({
 		'name': "Facebook",
 		'admin': {
-			'route': '/facebook',
+			'route': '/plugins/sso-facebook',
 			'icon': 'fa-facebook-square'
 		}
 	});
 
 	var Facebook = {};
 
-	Facebook.getStrategy = function(strategies) {
+	Facebook.init = function(app, middleware, controllers) {
+		function render(req, res, next) {
+			res.render('admin/plugins/sso-facebook', {});
+		}
+
+		app.get('/admin/plugins/sso-facebook', middleware.admin.buildHeader, render);
+		app.get('/api/admin/plugins/sso-facebook', render);
+	};
+
+	Facebook.getStrategy = function(strategies, callback) {
 		if (meta.config['social:facebook:app_id'] && meta.config['social:facebook:secret']) {
 			passport.use(new passportFacebook({
 				clientID: meta.config['social:facebook:app_id'],
@@ -44,7 +53,7 @@
 			});
 		}
 
-		return strategies;
+		callback(null, strategies);
 	};
 
 	Facebook.login = function(fbid, name, email, callback) {
@@ -99,35 +108,15 @@
 		});
 	};
 
-	Facebook.addMenuItem = function(custom_header) {
+	Facebook.addMenuItem = function(custom_header, callback) {
 		custom_header.authentication.push({
 			"route": constants.admin.route,
 			"icon": constants.admin.icon,
 			"name": constants.name
 		});
 
-		return custom_header;
+		callback(null, custom_header);
 	}
-
-	Facebook.addAdminRoute = function(custom_routes, callback) {
-		fs.readFile(path.resolve(__dirname, './static/admin.tpl'), function (err, template) {
-			custom_routes.routes.push({
-				"route": constants.admin.route,
-				"method": "get",
-				"options": function(req, res, callback) {
-					callback({
-						req: req,
-						res: res,
-						route: constants.admin.route,
-						name: constants.name,
-						content: template
-					});
-				}
-			});
-
-			callback(null, custom_routes);
-		});
-	};
 
 	module.exports = Facebook;
 }(module));

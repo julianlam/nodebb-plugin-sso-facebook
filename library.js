@@ -5,10 +5,10 @@
 		meta = module.parent.require('./meta'),
 		db = module.parent.require('../src/database'),
 		passport = module.parent.require('passport'),
-  		passportFacebook = require('passport-facebook').Strategy,
-  		fs = module.parent.require('fs'),
-  		path = module.parent.require('path'),
-  		nconf = module.parent.require('nconf');
+		passportFacebook = require('passport-facebook').Strategy,
+		fs = module.parent.require('fs'),
+		path = module.parent.require('path'),
+		nconf = module.parent.require('nconf');
 
 	var constants = Object.freeze({
 		'name': "Facebook",
@@ -20,13 +20,15 @@
 
 	var Facebook = {};
 
-	Facebook.init = function(app, middleware, controllers) {
+	Facebook.init = function(app, middleware, controllers, callback) {
 		function render(req, res, next) {
 			res.render('admin/plugins/sso-facebook', {});
 		}
 
 		app.get('/admin/plugins/sso-facebook', middleware.admin.buildHeader, render);
 		app.get('/api/admin/plugins/sso-facebook', render);
+
+		callback();
 	};
 
 	Facebook.getStrategy = function(strategies, callback) {
@@ -97,7 +99,7 @@
 				});
 			}
 		});
-	}
+	};
 
 	Facebook.getUidByFbid = function(fbid, callback) {
 		db.getObjectField('fbid:uid', fbid, function(err, uid) {
@@ -116,7 +118,7 @@
 		});
 
 		callback(null, custom_header);
-	}
+	};
 
 	module.exports = Facebook;
 }(module));

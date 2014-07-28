@@ -50,7 +50,7 @@
 				name: 'facebook',
 				url: '/auth/facebook',
 				callbackURL: '/auth/facebook/callback',
-				icon: 'facebook',
+				icon: 'fa-facebook-square',
 				scope: 'email'
 			});
 		}

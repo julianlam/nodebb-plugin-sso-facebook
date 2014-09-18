@@ -8,7 +8,8 @@
 		passportFacebook = require('passport-facebook').Strategy,
 		fs = module.parent.require('fs'),
 		path = module.parent.require('path'),
-		nconf = module.parent.require('nconf');
+		nconf = module.parent.require('nconf'),
+		async = module.parent.require('async');
 
 	var constants = Object.freeze({
 		'name': "Facebook",
@@ -118,6 +119,21 @@
 		});
 
 		callback(null, custom_header);
+	};
+
+	Facebook.deleteUserData = function(uid, callback) {
+		async.waterfall([
+			async.apply(user.getUserField, uid, 'fbid'),
+			function(oAuthIdToDelete, next) {
+				db.deleteObjectField('fbid:uid', oAuthIdToDelete, next);
+			}
+		], function(err) {
+			if (err) {
+				winston.error('[sso-facebook] Could not remove OAuthId data for uid ' + uid + '. Error: ' + err);
+				return callback(err);
+			}
+			callback(null, uid);
+		});
 	};
 
 	module.exports = Facebook;

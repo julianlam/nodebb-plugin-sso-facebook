@@ -39,7 +39,7 @@
 				clientSecret: meta.config['social:facebook:secret'],
 				callbackURL: nconf.get('url') + '/auth/facebook/callback'
 			}, function(accessToken, refreshToken, profile, done) {
-				Facebook.login(profile.id, profile.displayName, profile.emails[0].value, function(err, user) {
+				Facebook.login(profile.id, profile.displayName, profile.emails[0].value, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', function(err, user) {
 					if (err) {
 						return done(err);
 					}
@@ -59,7 +59,7 @@
 		callback(null, strategies);
 	};
 
-	Facebook.login = function(fbid, name, email, callback) {
+	Facebook.login = function(fbid, name, email, picture, callback) {
 		Facebook.getUidByFbid(fbid, function(err, uid) {
 			if(err) {
 				return callback(err);
@@ -76,6 +76,13 @@
 					// Save facebook-specific information to the user
 					user.setUserField(uid, 'fbid', fbid);
 					db.setObjectField('fbid:uid', fbid, uid);
+
+					// Save their photo, if present
+					if (picture) {
+						user.setUserField(uid, 'uploadedpicture', picture);
+						user.setUserField(uid, 'picture', picture);
+					}
+
 					callback(null, {
 						uid: uid
 					});

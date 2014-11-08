@@ -21,13 +21,13 @@
 
 	var Facebook = {};
 
-	Facebook.init = function(app, middleware, controllers, callback) {
+	Facebook.init = function(params, callback) {
 		function render(req, res, next) {
 			res.render('admin/plugins/sso-facebook', {});
 		}
 
-		app.get('/admin/plugins/sso-facebook', middleware.admin.buildHeader, render);
-		app.get('/api/admin/plugins/sso-facebook', render);
+		params.router.get('/admin/plugins/sso-facebook', params.middleware.admin.buildHeader, render);
+		params.router.get('/api/admin/plugins/sso-facebook', render);
 
 		callback();
 	};

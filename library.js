@@ -40,10 +40,10 @@
 				callbackURL: nconf.get('url') + '/auth/facebook/callback'
 			}, function(accessToken, refreshToken, profile, done) {
 				var email;
-				if (profile.emails.length) {
+				if (Array.isArray(profile.emails) && profile.emails.length) {
 					email = profile.emails[0].value;
 				} else {
-					email = profile.username ? (profile.username + '@facebook.com') : (profile.id + '@facebook.com');
+					email = (profile.username ? profile.username : profile.id) + '@facebook.com';
 				}
 
 				Facebook.login(profile.id, profile.displayName, email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', function(err, user) {

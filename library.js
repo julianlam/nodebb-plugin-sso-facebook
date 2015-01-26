@@ -1,18 +1,18 @@
 (function(module) {
-	"use strict";
+	'use strict';
+	/* globals module, require */
 
 	var user = module.parent.require('./user'),
 		meta = module.parent.require('./meta'),
 		db = module.parent.require('../src/database'),
 		passport = module.parent.require('passport'),
 		passportFacebook = require('passport-facebook').Strategy,
-		fs = module.parent.require('fs'),
-		path = module.parent.require('path'),
 		nconf = module.parent.require('nconf'),
-		async = module.parent.require('async');
+		async = module.parent.require('async'),
+		winston = module.parent.require('winston');
 
 	var constants = Object.freeze({
-		'name': "Facebook",
+		'name': 'Facebook',
 		'admin': {
 			'route': '/plugins/sso-facebook',
 			'icon': 'fa-facebook-square'
@@ -22,7 +22,7 @@
 	var Facebook = {};
 
 	Facebook.init = function(params, callback) {
-		function render(req, res, next) {
+		function render(req, res) {
 			res.render('admin/plugins/sso-facebook', {});
 		}
 
@@ -39,7 +39,14 @@
 				clientSecret: meta.config['social:facebook:secret'],
 				callbackURL: nconf.get('url') + '/auth/facebook/callback'
 			}, function(accessToken, refreshToken, profile, done) {
-				Facebook.login(profile.id, profile.displayName, profile.emails[0].value, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', function(err, user) {
+				var email;
+				if (profile.emails.length) {
+					email = profile.emails[0].value;
+				} else {
+					email = profile.username ? (profile.username + '@facebook.com') : (profile.id + '@facebook.com');
+				}
+
+				Facebook.login(profile.id, profile.displayName, email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', function(err, user) {
 					if (err) {
 						return done(err);
 					}
@@ -120,9 +127,9 @@
 
 	Facebook.addMenuItem = function(custom_header, callback) {
 		custom_header.authentication.push({
-			"route": constants.admin.route,
-			"icon": constants.admin.icon,
-			"name": constants.name
+			'route': constants.admin.route,
+			'icon': constants.admin.icon,
+			'name': constants.name
 		});
 
 		callback(null, custom_header);

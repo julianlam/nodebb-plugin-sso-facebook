@@ -5,7 +5,7 @@
 	<div class="alert alert-warning">
 		<p>
 			Create a <strong>Facebook Application</strong> via the
-			<a href="https://developers.facebook.com/">Facebook Developers Page</a> and
+			<a href="https://developers.facebook.com/apps/">Facebook Developers Page</a> and
 			then paste your application details here.
 		</p>
 		<br />

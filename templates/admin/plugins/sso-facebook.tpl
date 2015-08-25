@@ -1,23 +1,28 @@
-<h1><i class="fa fa-facebook-square"></i> Facebook Social Authentication</h1>
-<hr />
-
-<form>
-	<div class="alert alert-warning">
-		<p>
-			Create a <strong>Facebook Application</strong> via the
-			<a href="https://developers.facebook.com/apps/">Facebook Developers Page</a> and
-			then paste your application details here.
-		</p>
-		<br />
-		<input type="text" data-field="social:facebook:app_id" title="Application ID" class="form-control input-lg" placeholder="App ID"><br />
-		<input type="text" data-field="social:facebook:secret" title="Application Secret" class="form-control input-md" placeholder="App Secret"><br />
+<div class="row">
+	<div class="col-xs-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">Facebook Social Authentication</div>
+			<div class="panel-body">
+				<p>
+					Create a <strong>Facebook Application</strong> via the
+					<a href="https://developers.facebook.com/apps/">Facebook Developers Page</a> and
+					then paste your application details here.
+				</p>
+				<form role="form" class="sso-facebook-settings">
+					<div class="form-group">
+						<label for="app_id">Application ID</label>
+						<input type="text" id="app_id" name="app_id" title="Application ID" class="form-control" placeholder="Application ID"><br />
+					</div>
+					<div class="form-group">
+						<label for="secret">Secret</label>
+						<input type="text" id="secret" name="secret" title="Secret" class="form-control" placeholder="Secret">
+					</div>
+				</form>
+			</div>
+		</div>
 	</div>
-</form>
+</div>
 
-<button class="btn btn-lg btn-primary" id="save">Save</button>
-
-<script>
-	require(['admin/settings'], function(Settings) {
-		Settings.prepare();
-	});
-</script>
+<button id="save" class="floating-button mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+	<i class="material-icons">save</i>
+</button>

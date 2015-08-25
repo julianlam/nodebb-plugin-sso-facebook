@@ -19,7 +19,17 @@
 		}
 	});
 
-	var Facebook = {};
+	var Facebook = {
+		settings: undefined
+	};
+
+	Facebook.preinit = function(data, callback) {
+		// Settings
+		meta.settings.get('sso-facebook', function(err, settings) {
+			Facebook.settings = settings;
+			callback(null, data);
+		});
+	};
 
 	Facebook.init = function(params, callback) {
 		function render(req, res) {
@@ -28,20 +38,18 @@
 
 		params.router.get('/admin/plugins/sso-facebook', params.middleware.admin.buildHeader, render);
 		params.router.get('/api/admin/plugins/sso-facebook', render);
-
-		callback();
 	};
 
 	Facebook.getStrategy = function(strategies, callback) {
-		if (meta.config['social:facebook:app_id'] && meta.config['social:facebook:secret']) {
+		if (Facebook.settings !== undefined && Facebook.settings.hasOwnProperty('app_id') && Facebook.settings.hasOwnProperty('secret')) {
 			passport.use(new passportFacebook({
-				clientID: meta.config['social:facebook:app_id'],
-				clientSecret: meta.config['social:facebook:secret'],
+				clientID: Facebook.settings.app_id,
+				clientSecret: Facebook.settings.secret,
 				callbackURL: nconf.get('url') + '/auth/facebook/callback'
 			}, function(accessToken, refreshToken, profile, done) {
 				var email;
-				if (Array.isArray(profile.emails) && profile.emails.length) {
-					email = profile.emails[0].value;
+				if (profile._json.hasOwnProperty('email')) {
+					email = profile._json.email;
 				} else {
 					email = (profile.username ? profile.username : profile.id) + '@facebook.com';
 				}

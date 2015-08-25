@@ -38,6 +38,7 @@
 
 		params.router.get('/admin/plugins/sso-facebook', params.middleware.admin.buildHeader, render);
 		params.router.get('/api/admin/plugins/sso-facebook', render);
+		callback();
 	};
 
 	Facebook.getStrategy = function(strategies, callback) {

@@ -17,6 +17,10 @@
 						<label for="secret">Secret</label>
 						<input type="text" id="secret" name="secret" title="Secret" class="form-control" placeholder="Secret">
 					</div>
+					<div class="form-group">
+						<label for="secret">Skip email verification for people who register using SSO?</label>
+						<input type="checkbox" name="autoconfirm" class="form-control">
+					</div>
 				</form>
 			</div>
 		</div>

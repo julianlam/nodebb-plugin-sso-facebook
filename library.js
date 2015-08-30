@@ -92,6 +92,8 @@
 					// Save facebook-specific information to the user
 					user.setUserField(uid, 'fbid', fbid);
 					db.setObjectField('fbid:uid', fbid, uid);
+					var autoConfirm = Facebook.settings && Facebook.settings.autoconfirm === "on" ? 1: 0;
+					user.setUserField(uid, 'email:confirmed', autoConfirm);
 
 					// Save their photo, if present
 					if (picture) {

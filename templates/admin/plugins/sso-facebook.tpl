@@ -17,9 +17,11 @@
 						<label for="secret">Secret</label>
 						<input type="text" id="secret" name="secret" title="Secret" class="form-control" placeholder="Secret">
 					</div>
-					<div class="form-group">
-						<label for="secret">Skip email verification for people who register using SSO?</label>
-						<input type="checkbox" name="autoconfirm" class="form-control">
+					<div class="checkbox">
+						<label for="showSiteTitle" class="mdl-switch mdl-js-switch mdl-js-ripple-effect">
+							<input type="checkbox" class="mdl-switch__input" id="showSiteTitle" name="autoconfirm" />
+							<span class="mdl-switch__label">Skip email verification for people who register using SSO?</span>
+						</label>
 					</div>
 				</form>
 			</div>

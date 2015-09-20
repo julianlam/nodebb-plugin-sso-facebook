@@ -49,7 +49,7 @@
 					clientSecret: settings.secret,
 					callbackURL: nconf.get('url') + '/auth/facebook/callback'
 				}, function(accessToken, refreshToken, profile, done) {
-					Facebook.login(profile.id, profile.displayName, profile.username, profile.email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', function(err, user) {
+					Facebook.login(profile.id, profile.displayName, profile.email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', function(err, user) {
 						if (err) {
 							return done(err);
 						}
@@ -72,7 +72,9 @@
 
 	Facebook.login = function(fbid, name, username, email, picture, callback) {
 		if (!email) {
-			email = username + '@users.noreply.facebook.com';
+			email = name.replace(' ', '_')
+				.toLowerCase() 
+					+ '@users.noreply.facebook.com';
 		}
 		
 		Facebook.getUidByFbid(fbid, function(err, uid) {

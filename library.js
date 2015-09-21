@@ -14,7 +14,7 @@
 		'name': 'Facebook',
 		'admin': {
 			'route': '/plugins/sso-facebook',
-			'icon': 'fa fa-facebook-square'
+			'icon': 'fa-facebook-square'
 		}
 	});
 
@@ -49,7 +49,13 @@
 					clientSecret: settings.secret,
 					callbackURL: nconf.get('url') + '/auth/facebook/callback'
 				}, function(accessToken, refreshToken, profile, done) {
-					Facebook.login(profile.id, profile.displayName, profile.email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', function(err, user) {
+					var email;
+					if (profile._json.hasOwnProperty('email')) {
+						email = profile._json.email;
+					} else {
+						email = (profile.username || profile.id) + '@facebook.com';
+					}
+					Facebook.login(profile.id, profile.displayName, email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', function(err, user) {
 						if (err) {
 							return done(err);
 						}
@@ -70,13 +76,7 @@
 		});
 	};
 
-	Facebook.login = function(fbid, name, username, email, picture, callback) {
-		if (!email) {
-			email = name.replace(' ', '_')
-				.toLowerCase() 
-					+ '@users.noreply.facebook.com';
-		}
-		
+	Facebook.login = function(fbid, name, email, picture, callback) {
 		Facebook.getUidByFbid(fbid, function(err, uid) {
 			if(err) {
 				return callback(err);

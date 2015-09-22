@@ -46,8 +46,16 @@
 			passport.use(new passportFacebook({
 				clientID: Facebook.settings.app_id,
 				clientSecret: Facebook.settings.secret,
-				callbackURL: nconf.get('url') + '/auth/facebook/callback'
-			}, function(accessToken, refreshToken, profile, done) {
+				callbackURL: nconf.get('url') + '/auth/facebook/callback',
+				passReqToCallback: true
+			}, function(req, accessToken, refreshToken, profile, done) {
+				if (req.hasOwnProperty('user') && req.user.hasOwnProperty('uid') && req.user.uid > 0) {
+					// Save facebook-specific information to the user
+					user.setUserField(req.user.uid, 'fbid', profile.id);
+					db.setObjectField('fbid:uid', profile.id, req.user.uid);
+					return done(null, req.user);
+				}
+
 				var email;
 				if (profile._json.hasOwnProperty('email')) {
 					email = profile._json.email;
@@ -67,12 +75,38 @@
 				name: 'facebook',
 				url: '/auth/facebook',
 				callbackURL: '/auth/facebook/callback',
-				icon: 'fa-facebook-square',
+				icon: constants.icon,
 				scope: 'email'
 			});
 		}
 
 		callback(null, strategies);
+	};
+
+	Facebook.getAssociation = function(data, callback) {
+		user.getUserField(data.uid, 'fbid', function(err, fbId) {
+			if (err) {
+				return callback(err, data);
+			}
+
+			if (fbId) {
+				data.associations.push({
+					associated: true,
+					url: 'https://facebook.com/' + fbId,
+					name: constants.name,
+					icon: constants.admin.icon
+				});
+			} else {
+				data.associations.push({
+					associated: false,
+					url: nconf.get('url') + '/auth/facebook',
+					name: constants.name,
+					icon: constants.admin.icon
+				});
+			}
+
+			callback(null, data);
+		})
 	};
 
 	Facebook.login = function(fbid, name, email, picture, callback) {

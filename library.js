@@ -180,7 +180,9 @@
 		callback(null, custom_header);
 	};
 
-	Facebook.deleteUserData = function(uid, callback) {
+	Facebook.deleteUserData = function(data, callback) {
+		var uid = data.uid;
+
 		async.waterfall([
 			async.apply(user.getUserField, uid, 'fbid'),
 			function(oAuthIdToDelete, next) {

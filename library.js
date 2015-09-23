@@ -75,7 +75,7 @@
 				name: 'facebook',
 				url: '/auth/facebook',
 				callbackURL: '/auth/facebook/callback',
-				icon: constants.icon,
+				icon: constants.admin.icon,
 				scope: 'email'
 			});
 		}

@@ -23,14 +23,6 @@
 		settings: undefined
 	};
 
-	Facebook.preinit = function(data, callback) {
-		// Settings
-		meta.settings.get('sso-facebook', function(err, settings) {
-			Facebook.settings = settings;
-			callback(null, data);
-		});
-	};
-
 	Facebook.init = function(params, callback) {
 		function render(req, res) {
 			res.render('admin/plugins/sso-facebook', {});
@@ -38,10 +30,28 @@
 
 		params.router.get('/admin/plugins/sso-facebook', params.middleware.admin.buildHeader, render);
 		params.router.get('/api/admin/plugins/sso-facebook', render);
+
 		callback();
 	};
 
+	Facebook.getSettings = function(callback) {
+		if (Facebook.settings) {
+			return callback();
+		}
+
+		meta.settings.get('sso-facebook', function(err, settings) {
+			Facebook.settings = settings;
+			callback();
+		});
+	}
+
 	Facebook.getStrategy = function(strategies, callback) {
+		if (!Facebook.settings) {
+			return Facebook.getSettings(function() {
+				Facebook.getStrategy(strategies, callback);
+			});
+		}
+
 		if (Facebook.settings !== undefined && Facebook.settings.hasOwnProperty('app_id') && Facebook.settings.hasOwnProperty('secret')) {
 			passport.use(new passportFacebook({
 				clientID: Facebook.settings.app_id,

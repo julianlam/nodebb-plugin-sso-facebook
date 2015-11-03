@@ -57,7 +57,8 @@
 				clientID: Facebook.settings.app_id,
 				clientSecret: Facebook.settings.secret,
 				callbackURL: nconf.get('url') + '/auth/facebook/callback',
-				passReqToCallback: true
+				passReqToCallback: true,
+                                profileFields: ['id', 'emails', 'name']
 			}, function(req, accessToken, refreshToken, profile, done) {
 				if (req.hasOwnProperty('user') && req.user.hasOwnProperty('uid') && req.user.uid > 0) {
 					// Save facebook-specific information to the user

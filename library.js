@@ -9,7 +9,10 @@
 		passportFacebook = require('passport-facebook').Strategy,
 		nconf = module.parent.require('nconf'),
 		async = module.parent.require('async'),
-		winston = module.parent.require('winston');
+		winston = module.parent.require('winston'),
+		path = module.parent.require('path'),
+		fs = module.parent.require('fs'),
+		request = module.parent.require('request');
 
 	var constants = Object.freeze({
 		'name': 'Facebook',
@@ -58,7 +61,7 @@
 				clientSecret: Facebook.settings.secret,
 				callbackURL: nconf.get('url') + '/auth/facebook/callback',
 				passReqToCallback: true,
-                                profileFields: ['id', 'emails', 'name', 'displayName']
+				profileFields: ['id', 'emails', 'name', 'displayName']
 			}, function(req, accessToken, refreshToken, profile, done) {
 				if (req.hasOwnProperty('user') && req.user.hasOwnProperty('uid') && req.user.uid > 0) {
 					// Save facebook-specific information to the user
@@ -74,7 +77,7 @@
 					email = (profile.username ? profile.username : profile.id) + '@facebook.com';
 				}
 
-				Facebook.login(profile.id, profile.displayName, email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', function(err, user) {
+				Facebook.login(profile.id, profile.displayName, email, 'https://graph.facebook.com/me/picture?type=large&access_token='+accessToken, function(err, user) {
 					if (err) {
 						return done(err);
 					}
@@ -140,15 +143,41 @@
 					var autoConfirm = Facebook.settings && Facebook.settings.autoconfirm === "on" ? 1: 0;
 					user.setUserField(uid, 'email:confirmed', autoConfirm);
 
-					// Save their photo, if present
+					// Download and Save their photo, if present
 					if (picture) {
-						user.setUserField(uid, 'uploadedpicture', picture);
-						user.setUserField(uid, 'picture', picture);
+						var filename = uid + '-profileimg.jpg';
+						var absolutePath = path.join(nconf.get('base_dir'), nconf.get('upload_path'), 'profile', filename);
+						
+						var file = fs.createWriteStream(absolutePath);
+						
+						file.on('finish', function() {
+							file.close(function() {
+								var picPath = path.join('/uploads', 'profile', filename);
+								user.setUserField(uid, 'uploadedpicture', picPath);
+								user.setUserField(uid, 'picture', picPath);
+								callback(null, {
+									uid: uid
+								});
+							});	
+						});						
+						
+						request.get({
+							followAllRedirects: true,
+							url: picture
+						})
+						.on('error', function(err) {
+							fs.unlink(dest);
+							callback(null, {
+								uid: uid
+							});
+						})
+						.pipe(file);
+						
+					} else {
+						callback(null, {
+							uid: uid
+						});
 					}
-
-					callback(null, {
-						uid: uid
-					});
 				};
 
 				user.getUidByEmail(email, function(err, uid) {

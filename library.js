@@ -74,7 +74,7 @@
 					email = (profile.username ? profile.username : profile.id) + '@facebook.com';
 				}
 
-				Facebook.login(profile.id, profile.displayName, email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', function(err, user) {
+				Facebook.login(profile.id, profile.displayName, email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', accessToken, refreshToken, profile, function(err, user) {
 					if (err) {
 						return done(err);
 					}
@@ -87,7 +87,7 @@
 				url: '/auth/facebook',
 				callbackURL: '/auth/facebook/callback',
 				icon: constants.admin.icon,
-				scope: 'email'
+				scope: 'email, user_friends'
 			});
 		}
 
@@ -120,7 +120,17 @@
 		})
 	};
 
-	Facebook.login = function(fbid, name, email, picture, callback) {
+	Facebook.storeTokens = function(uid, accessToken, refreshToken) {
+		//JG: Actually save the useful stuff
+		winston.info("Storing received fb access information for uid(" + uid + ") accessToken(" + accessToken + ") refreshToken(" + refreshToken + ")");
+		user.setUserField(uid, 'fbaccesstoken', accessToken);
+		user.setUserField(uid, 'fbrefreshtoken', refreshToken);
+	};
+
+	Facebook.login = function(fbid, name, email, picture, accessToken, refreshToken, profile, callback) {
+
+		winston.verbose("Facebook.login fbid, name, email, picture: " + fbid + ", " + ", " + name + ", " + email + ", " + picture);
+
 		Facebook.getUidByFbid(fbid, function(err, uid) {
 			if(err) {
 				return callback(err);
@@ -128,6 +138,9 @@
 
 			if (uid !== null) {
 				// Existing User
+
+				Facebook.storeTokens(uid, accessToken, refreshToken);
+
 				callback(null, {
 					uid: uid
 				});
@@ -145,6 +158,8 @@
 						user.setUserField(uid, 'uploadedpicture', picture);
 						user.setUserField(uid, 'picture', picture);
 					}
+
+					Facebook.storeTokens(uid, accessToken, refreshToken);
 
 					callback(null, {
 						uid: uid

@@ -52,7 +52,11 @@
 			});
 		}
 
-		if (Facebook.settings !== undefined && Facebook.settings.hasOwnProperty('app_id') && Facebook.settings.hasOwnProperty('secret')) {
+		if (
+			Facebook.settings !== undefined
+			&& Facebook.settings.hasOwnProperty('app_id') && Facebook.settings.app_id
+			&& Facebook.settings.hasOwnProperty('secret') && Facebook.settings.secret
+		) {
 			passport.use(new passportFacebook({
 				clientID: Facebook.settings.app_id,
 				clientSecret: Facebook.settings.secret,

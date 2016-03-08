@@ -11,6 +11,8 @@
 		async = module.parent.require('async'),
 		winston = module.parent.require('winston');
 
+	var authenticationController = module.parent.require('./controllers/authentication');
+
 	var constants = Object.freeze({
 		'name': 'Facebook',
 		'admin': {
@@ -82,6 +84,7 @@
 					if (err) {
 						return done(err);
 					}
+					authenticationController.onSuccessfulLogin(req, user.uid);
 					done(null, user);
 				});
 			}));

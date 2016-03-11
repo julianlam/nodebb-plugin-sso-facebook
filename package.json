@@ -29,6 +29,6 @@
     "passport-facebook": "~1.0.2"
   },
   "nbbpm": {
-    "compatibility": "^1.0.0"
+    "compatibility": "^1.0.1"
   }
 }

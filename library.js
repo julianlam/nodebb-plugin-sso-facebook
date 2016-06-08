@@ -127,6 +127,21 @@
 		})
 	};
 
+	Facebook.prepareInterstitial = function(data, callback) {
+		data.interstitials.push({
+			template: 'partials/sso-facebook/email.tpl',
+			data: {
+				placeholder: 'b@c.com'
+			},
+			callback: function(data, next) {
+				console.log('fb interstitial accept.', data);
+				next();
+			}
+		});
+
+		callback(null, data);
+	};
+
 	Facebook.storeTokens = function(uid, accessToken, refreshToken) {
 		//JG: Actually save the useful stuff
 		winston.info("Storing received fb access information for uid(" + uid + ") accessToken(" + accessToken + ") refreshToken(" + refreshToken + ")");

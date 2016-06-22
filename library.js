@@ -84,6 +84,12 @@
 					if (err) {
 						return done(err);
 					}
+
+					// Require collection of email
+					req.session.registration = req.session.registration || {};
+					req.session.registration.uid = user.uid;
+					req.session.registration.fbid = profile.id;
+
 					authenticationController.onSuccessfulLogin(req, user.uid);
 					done(null, user);
 				});
@@ -128,18 +134,28 @@
 	};
 
 	Facebook.prepareInterstitial = function(data, callback) {
-		data.interstitials.push({
-			template: 'partials/sso-facebook/email.tpl',
-			data: {
-				placeholder: 'b@c.com'
-			},
-			callback: function(data, next) {
-				console.log('fb interstitial accept.', data);
-				next();
-			}
-		});
+		// Only execute if:
+		//   - uid and fbid are set in session
+		//   - email ends with "@facebook.com"
+		if (data.userData.hasOwnProperty('uid') && data.userData.hasOwnProperty('fbid')) {
+			user.getUserField(data.userData.uid, 'email', function(err, email) {
+				if (email.endsWith('@facebook.com')) {
+					data.interstitials.push({
+						template: 'partials/sso-facebook/email.tpl',
+						data: {},
+						callback: Facebook.storeAdditionalData
+					});
+				}
 
-		callback(null, data);
+				callback(null, data);
+			});
+		} else {
+			callback(null, data);
+		}
+	};
+
+	Facebook.storeAdditionalData = function(userData, data, callback) {
+		user.setUserField(userData.uid, 'email', data.email, callback);
 	};
 
 	Facebook.storeTokens = function(uid, accessToken, refreshToken) {

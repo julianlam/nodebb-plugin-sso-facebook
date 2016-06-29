@@ -139,7 +139,6 @@
 		// Only execute if:
 		//   - uid and fbid are set in session
 		//   - email ends with "@facebook.com"
-		console.log(data);
 		if (data.userData.hasOwnProperty('uid') && data.userData.hasOwnProperty('fbid')) {
 			user.getUserField(data.userData.uid, 'email', function(err, email) {
 				if (email.endsWith('@facebook.com')) {

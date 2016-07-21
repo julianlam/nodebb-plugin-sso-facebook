@@ -5,13 +5,10 @@ define('admin/plugins/sso-facebook', ['settings'], function(Settings) {
 	var ACP = {};
 
 	ACP.init = function() {
-		console.log('derp');
 		Settings.load('sso-facebook', $('.sso-facebook-settings'));
 
 		$('#save').on('click', function() {
-			console.log('clicked');
 			Settings.save('sso-facebook', $('.sso-facebook-settings'), function() {
-				console.log('saved');
 				app.alert({
 					type: 'success',
 					alert_id: 'sso-facebook-saved',

@@ -141,7 +141,7 @@
 		//   - email ends with "@facebook.com"
 		if (data.userData.hasOwnProperty('uid') && data.userData.hasOwnProperty('fbid')) {
 			user.getUserField(data.userData.uid, 'email', function(err, email) {
-				if (email.endsWith('@facebook.com')) {
+				if (email && email.endsWith('@facebook.com')) {
 					data.interstitials.push({
 						template: 'partials/sso-facebook/email.tpl',
 						data: {},

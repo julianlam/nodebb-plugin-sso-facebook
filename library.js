@@ -64,7 +64,7 @@
 				clientSecret: Facebook.settings.secret,
 				callbackURL: nconf.get('url') + '/auth/facebook/callback',
 				passReqToCallback: true,
-                                profileFields: ['id', 'emails', 'name', 'displayName']
+				profileFields: ['id', 'emails', 'name', 'displayName']
 			}, function(req, accessToken, refreshToken, profile, done) {
 				if (req.hasOwnProperty('user') && req.user.hasOwnProperty('uid') && req.user.uid > 0) {
 					// Save facebook-specific information to the user
@@ -92,8 +92,7 @@
 						req.session.registration.fbid = profile.id;
 					}
 
-					authenticationController.onSuccessfulLogin(req, user.uid);
-					done(null, user);
+					authenticationController.onSuccessfulLogin(req, user.uid, done.bind(null, null, user));
 				});
 			}));
 
@@ -162,14 +161,14 @@
 
 	Facebook.storeTokens = function(uid, accessToken, refreshToken) {
 		//JG: Actually save the useful stuff
-		winston.info("Storing received fb access information for uid(" + uid + ") accessToken(" + accessToken + ") refreshToken(" + refreshToken + ")");
+		winston.verbose("Storing received fb access information for uid(" + uid + ") accessToken(" + accessToken + ") refreshToken(" + refreshToken + ")");
 		user.setUserField(uid, 'fbaccesstoken', accessToken);
 		user.setUserField(uid, 'fbrefreshtoken', refreshToken);
 	};
 
 	Facebook.login = function(fbid, name, email, picture, accessToken, refreshToken, profile, callback) {
 
-		winston.verbose("Facebook.login fbid, name, email, picture: " + fbid + ", " + ", " + name + ", " + email + ", " + picture);
+		winston.verbose("Facebook.login fbid, name, email, picture: " + fbid + ", " + name + ", " + email + ", " + picture);
 
 		Facebook.getUidByFbid(fbid, function(err, uid) {
 			if(err) {

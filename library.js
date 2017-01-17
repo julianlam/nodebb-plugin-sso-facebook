@@ -156,7 +156,17 @@
 	};
 
 	Facebook.storeAdditionalData = function(userData, data, callback) {
-		user.setUserField(userData.uid, 'email', data.email, callback);
+		async.waterfall([
+			// Reset email confirm throttle
+			async.apply(db.delete, 'uid:' + userData.uid + ':confirm:email:sent'),
+			async.apply(user.getUserField, userData.uid, 'email'),
+			function (email, next) {
+				// Remove the old email from sorted set reference
+				db.sortedSetRemove('email:uid', email, next);
+			},
+			async.apply(user.setUserField, userData.uid, 'email', data.email),
+			async.apply(user.email.sendValidationEmail, userData.uid, data.email)
+		], callback);
 	};
 
 	Facebook.storeTokens = function(uid, accessToken, refreshToken) {

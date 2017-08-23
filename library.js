@@ -92,7 +92,9 @@
 						req.session.registration.fbid = profile.id;
 					}
 
-					authenticationController.onSuccessfulLogin(req, user.uid, done.bind(null, null, user));
+					authenticationController.onSuccessfulLogin(req, user.uid, function (err) {
+						done(err, !err ? user : null);
+					});
 				});
 			}));
 

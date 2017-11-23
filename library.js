@@ -26,12 +26,30 @@
 	};
 
 	Facebook.init = function(params, callback) {
+		var hostHelpers = require.main.require('./src/routes/helpers');
 		function render(req, res) {
 			res.render('admin/plugins/sso-facebook', {});
 		}
 
 		params.router.get('/admin/plugins/sso-facebook', params.middleware.admin.buildHeader, render);
 		params.router.get('/api/admin/plugins/sso-facebook', render);
+
+		hostHelpers.setupPageRoute(params.router, '/deauth/facebook', params.middleware, [params.middleware.requireUser], function (req, res) {
+			res.render('plugins/sso-facebook/deauth', {
+				service: "Facebook",
+			});
+		});
+		params.router.post('/deauth/facebook', params.middleware.requireUser, function (req, res, next) {
+			Facebook.deleteUserData({
+				uid: req.user.uid,
+			}, function (err) {
+				if (err) {
+					return next(err);
+				}
+
+				res.redirect(nconf.get('relative_path') + '/user/admin/edit');
+			});
+		});
 
 		callback();
 	};
@@ -110,6 +128,11 @@
 		callback(null, strategies);
 	};
 
+	Facebook.appendUserHashWhitelist = function (data, callback) {
+		data.whitelist.push('fbid');
+		return setImmediate(callback, null, data);
+	};
+
 	Facebook.getAssociation = function(data, callback) {
 		user.getUserField(data.uid, 'fbid', function(err, fbId) {
 			if (err) {
@@ -120,6 +143,7 @@
 				data.associations.push({
 					associated: true,
 					url: 'https://facebook.com/' + fbId,
+					deauthUrl: nconf.get('url') + '/deauth/facebook',
 					name: constants.name,
 					icon: constants.admin.icon
 				});
@@ -179,7 +203,6 @@
 	};
 
 	Facebook.login = function(fbid, name, email, picture, accessToken, refreshToken, profile, callback) {
-
 		winston.verbose("Facebook.login fbid, name, email, picture: " + fbid + ", " + name + ", " + email + ", " + picture);
 
 		Facebook.getUidByFbid(fbid, function(err, uid) {
@@ -268,7 +291,10 @@
 			async.apply(user.getUserField, uid, 'fbid'),
 			function(oAuthIdToDelete, next) {
 				db.deleteObjectField('fbid:uid', oAuthIdToDelete, next);
-			}
+			},
+			function (next) {
+				db.deleteObjectField('user:' + uid, 'fbid', next);
+			},
 		], function(err) {
 			if (err) {
 				winston.error('[sso-facebook] Could not remove OAuthId data for uid ' + uid + '. Error: ' + err);

@@ -18,8 +18,8 @@
 						<input type="text" id="secret" name="secret" title="Secret" class="form-control" placeholder="Secret">
 					</div>
 					<div class="checkbox">
-						<label for="showSiteTitle" class="mdl-switch mdl-js-switch mdl-js-ripple-effect">
-							<input type="checkbox" class="mdl-switch__input" id="showSiteTitle" name="autoconfirm" />
+						<label for="autoconfirm" class="mdl-switch mdl-js-switch mdl-js-ripple-effect">
+							<input type="checkbox" class="mdl-switch__input" id="autoconfirm" name="autoconfirm" />
 							<span class="mdl-switch__label">Skip email verification for people who register using SSO?</span>
 						</label>
 					</div>

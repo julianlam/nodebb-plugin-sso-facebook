@@ -251,7 +251,7 @@
 
 					if (!uid) {
 						// Abort user creation if registration via SSO is restricted
-						if (!Facebook.settings.hasOwnProperty('disableRegistration') || Facebook.settings.disableRegistration === 'on') {
+						if (Facebook.settings.disableRegistration === 'on') {
 							return callback(new Error('[[error:sso-registration-disabled, Facebook]]'));
 						}
 

@@ -85,35 +85,45 @@
 				profileFields: ['id', 'emails', 'name', 'displayName']
 			}, function(req, accessToken, refreshToken, profile, done) {
 				if (req.hasOwnProperty('user') && req.user.hasOwnProperty('uid') && req.user.uid > 0) {
-					// Save facebook-specific information to the user
-					user.setUserField(req.user.uid, 'fbid', profile.id);
-					db.setObjectField('fbid:uid', profile.id, req.user.uid);
-					return done(null, req.user);
-				}
+					// User is already logged-in, associate fb account with uid if account does not have an existing association
+					user.getUserField(req.user.uid, 'fbid', function (err, fbid) {
+						if (err) {
+							return done(err);
+						}
 
-				var email;
-				if (profile._json.hasOwnProperty('email')) {
-					email = profile._json.email;
-				} else {
-					email = (profile.username ? profile.username : profile.id) + '@facebook.com';
-				}
-
-				Facebook.login(profile.id, profile.displayName, email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', accessToken, refreshToken, profile, function(err, user) {
-					if (err) {
-						return done(err);
-					}
-
-					// Require collection of email
-					if (email.endsWith('@facebook.com')) {
-						req.session.registration = req.session.registration || {};
-						req.session.registration.uid = user.uid;
-						req.session.registration.fbid = profile.id;
-					}
-
-					authenticationController.onSuccessfulLogin(req, user.uid, function (err) {
-						done(err, !err ? user : null);
+						if (!fbid || profile.id === fbid) {
+							user.setUserField(req.user.uid, 'fbid', profile.id);
+							db.setObjectField('fbid:uid', profile.id, req.user.uid);
+							done(null, req.user);
+						} else {
+							done(new Error('[[error:sso-multiple-association]]'));
+						}
 					});
-				});
+				} else {
+					var email;
+					if (profile._json.hasOwnProperty('email')) {
+						email = profile._json.email;
+					} else {
+						email = (profile.username ? profile.username : profile.id) + '@facebook.com';
+					}
+
+					Facebook.login(profile.id, profile.displayName, email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', accessToken, refreshToken, profile, function(err, user) {
+						if (err) {
+							return done(err);
+						}
+
+						// Require collection of email
+						if (email.endsWith('@facebook.com')) {
+							req.session.registration = req.session.registration || {};
+							req.session.registration.uid = user.uid;
+							req.session.registration.fbid = profile.id;
+						}
+
+						authenticationController.onSuccessfulLogin(req, user.uid, function (err) {
+							done(err, !err ? user : null);
+						});
+					});
+				}
 			}));
 
 			strategies.push({
@@ -212,7 +222,6 @@
 
 			if (uid !== null) {
 				// Existing User
-
 				Facebook.storeTokens(uid, accessToken, refreshToken);
 
 				callback(null, {

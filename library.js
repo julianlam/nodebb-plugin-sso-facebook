@@ -131,7 +131,7 @@
 				url: '/auth/facebook',
 				callbackURL: '/auth/facebook/callback',
 				icon: constants.admin.icon,
-				scope: 'email, user_friends'
+				scope: 'public_profile, email'
 			});
 		}
 

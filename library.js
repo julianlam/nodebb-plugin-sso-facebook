@@ -39,7 +39,7 @@
 				service: "Facebook",
 			});
 		});
-		params.router.post('/deauth/facebook', params.middleware.requireUser, function (req, res, next) {
+		params.router.post('/deauth/facebook', [params.middleware.requireUser, params.middleware.applyCSRF], function (req, res, next) {
 			Facebook.deleteUserData({
 				uid: req.user.uid,
 			}, function (err) {

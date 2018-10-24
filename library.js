@@ -82,7 +82,8 @@
 				clientSecret: Facebook.settings.secret,
 				callbackURL: nconf.get('url') + '/auth/facebook/callback',
 				passReqToCallback: true,
-				profileFields: ['id', 'emails', 'name', 'displayName']
+				profileFields: ['id', 'emails', 'name', 'displayName'],
+				enableProof: true,
 			}, function(req, accessToken, refreshToken, profile, done) {
 				if (req.hasOwnProperty('user') && req.user.hasOwnProperty('uid') && req.user.uid > 0) {
 					// User is already logged-in, associate fb account with uid if account does not have an existing association

@@ -1,17 +1,17 @@
-(function(module) {
+(function (module) {
 	'use strict';
 	/* globals module, require */
 
-	var user = module.parent.require('./user'),
-		meta = module.parent.require('./meta'),
-		db = module.parent.require('../src/database'),
-		passport = module.parent.require('passport'),
+	var user = require.main.require('./src/user'),
+		meta = require.main.require('./src/meta'),
+		db = require.main.require('./src/database'),
+		passport = require.main.require('passport'),
 		passportFacebook = require('passport-facebook').Strategy,
-		nconf = module.parent.require('nconf'),
-		async = module.parent.require('async'),
-		winston = module.parent.require('winston');
+		nconf = require.main.require('nconf'),
+		async = require.main.require('async'),
+		winston = require.main.require('winston');
 
-	var authenticationController = module.parent.require('./controllers/authentication');
+	var authenticationController = require.main.require('./src/controllers/authentication');
 
 	var constants = Object.freeze({
 		'name': 'Facebook',
@@ -25,8 +25,9 @@
 		settings: undefined
 	};
 
-	Facebook.init = function(params, callback) {
+	Facebook.init = function (params, callback) {
 		var hostHelpers = require.main.require('./src/routes/helpers');
+
 		function render(req, res) {
 			res.render('admin/plugins/sso-facebook', {});
 		}
@@ -54,28 +55,28 @@
 		callback();
 	};
 
-	Facebook.getSettings = function(callback) {
+	Facebook.getSettings = function (callback) {
 		if (Facebook.settings) {
 			return callback();
 		}
 
-		meta.settings.get('sso-facebook', function(err, settings) {
+		meta.settings.get('sso-facebook', function (err, settings) {
 			Facebook.settings = settings;
 			callback();
 		});
 	}
 
-	Facebook.getStrategy = function(strategies, callback) {
+	Facebook.getStrategy = function (strategies, callback) {
 		if (!Facebook.settings) {
-			return Facebook.getSettings(function() {
+			return Facebook.getSettings(function () {
 				Facebook.getStrategy(strategies, callback);
 			});
 		}
 
 		if (
-			Facebook.settings !== undefined
-			&& Facebook.settings.hasOwnProperty('app_id') && Facebook.settings.app_id
-			&& Facebook.settings.hasOwnProperty('secret') && Facebook.settings.secret
+			Facebook.settings !== undefined &&
+			Facebook.settings.hasOwnProperty('app_id') && Facebook.settings.app_id &&
+			Facebook.settings.hasOwnProperty('secret') && Facebook.settings.secret
 		) {
 			passport.use(new passportFacebook({
 				clientID: Facebook.settings.app_id,
@@ -84,7 +85,7 @@
 				passReqToCallback: true,
 				profileFields: ['id', 'emails', 'name', 'displayName'],
 				enableProof: true,
-			}, function(req, accessToken, refreshToken, profile, done) {
+			}, function (req, accessToken, refreshToken, profile, done) {
 				if (req.hasOwnProperty('user') && req.user.hasOwnProperty('uid') && req.user.uid > 0) {
 					// User is already logged-in, associate fb account with uid if account does not have an existing association
 					user.getUserField(req.user.uid, 'fbid', function (err, fbid) {
@@ -108,7 +109,7 @@
 						email = (profile.username ? profile.username : profile.id) + '@facebook.com';
 					}
 
-					Facebook.login(profile.id, profile.displayName, email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', accessToken, refreshToken, profile, function(err, user) {
+					Facebook.login(profile.id, profile.displayName, email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', accessToken, refreshToken, profile, function (err, user) {
 						if (err) {
 							return done(err);
 						}
@@ -144,8 +145,8 @@
 		return setImmediate(callback, null, data);
 	};
 
-	Facebook.getAssociation = function(data, callback) {
-		user.getUserField(data.uid, 'fbid', function(err, fbId) {
+	Facebook.getAssociation = function (data, callback) {
+		user.getUserField(data.uid, 'fbid', function (err, fbId) {
 			if (err) {
 				return callback(err, data);
 			}
@@ -171,12 +172,12 @@
 		})
 	};
 
-	Facebook.prepareInterstitial = function(data, callback) {
+	Facebook.prepareInterstitial = function (data, callback) {
 		// Only execute if:
 		//   - uid and fbid are set in session
 		//   - email ends with "@facebook.com"
 		if (data.userData.hasOwnProperty('uid') && data.userData.hasOwnProperty('fbid')) {
-			user.getUserField(data.userData.uid, 'email', function(err, email) {
+			user.getUserField(data.userData.uid, 'email', function (err, email) {
 				if (email && email.endsWith('@facebook.com')) {
 					data.interstitials.push({
 						template: 'partials/sso-facebook/email.tpl',
@@ -192,7 +193,7 @@
 		}
 	};
 
-	Facebook.storeAdditionalData = function(userData, data, callback) {
+	Facebook.storeAdditionalData = function (userData, data, callback) {
 		async.waterfall([
 			// Reset email confirm throttle
 			async.apply(db.delete, 'uid:' + userData.uid + ':confirm:email:sent'),
@@ -206,18 +207,18 @@
 		], callback);
 	};
 
-	Facebook.storeTokens = function(uid, accessToken, refreshToken) {
+	Facebook.storeTokens = function (uid, accessToken, refreshToken) {
 		//JG: Actually save the useful stuff
 		winston.verbose("Storing received fb access information for uid(" + uid + ") accessToken(" + accessToken + ") refreshToken(" + refreshToken + ")");
 		user.setUserField(uid, 'fbaccesstoken', accessToken);
 		user.setUserField(uid, 'fbrefreshtoken', refreshToken);
 	};
 
-	Facebook.login = function(fbid, name, email, picture, accessToken, refreshToken, profile, callback) {
+	Facebook.login = function (fbid, name, email, picture, accessToken, refreshToken, profile, callback) {
 		winston.verbose("Facebook.login fbid, name, email, picture: " + fbid + ", " + name + ", " + email + ", " + picture);
 
-		Facebook.getUidByFbid(fbid, function(err, uid) {
-			if(err) {
+		Facebook.getUidByFbid(fbid, function (err, uid) {
+			if (err) {
 				return callback(err);
 			}
 
@@ -230,17 +231,17 @@
 				});
 			} else {
 				// New User
-				var success = function(uid) {
+				var success = function (uid) {
 					// Save facebook-specific information to the user
 					user.setUserField(uid, 'fbid', fbid);
 					db.setObjectField('fbid:uid', fbid, uid);
-					var autoConfirm = Facebook.settings && Facebook.settings.autoconfirm === "on" ? 1: 0;
+					var autoConfirm = Facebook.settings && Facebook.settings.autoconfirm === "on" ? 1 : 0;
 					user.setUserField(uid, 'email:confirmed', autoConfirm);
 
 					if (autoConfirm) {
 						db.sortedSetRemove('users:notvalidated', uid);
 					}
-					
+
 					// Save their photo, if present
 					if (picture) {
 						user.setUserField(uid, 'uploadedpicture', picture);
@@ -254,8 +255,8 @@
 					});
 				};
 
-				user.getUidByEmail(email, function(err, uid) {
-					if(err) {
+				user.getUidByEmail(email, function (err, uid) {
+					if (err) {
 						return callback(err);
 					}
 
@@ -265,8 +266,8 @@
 							return callback(new Error('[[error:sso-registration-disabled, Facebook]]'));
 						}
 
-						user.create({username: name, email: email}, function(err, uid) {
-							if(err) {
+						user.create({ username: name, email: email }, function (err, uid) {
+							if (err) {
 								return callback(err);
 							}
 
@@ -280,8 +281,8 @@
 		});
 	};
 
-	Facebook.getUidByFbid = function(fbid, callback) {
-		db.getObjectField('fbid:uid', fbid, function(err, uid) {
+	Facebook.getUidByFbid = function (fbid, callback) {
+		db.getObjectField('fbid:uid', fbid, function (err, uid) {
 			if (err) {
 				return callback(err);
 			}
@@ -289,7 +290,7 @@
 		});
 	};
 
-	Facebook.addMenuItem = function(custom_header, callback) {
+	Facebook.addMenuItem = function (custom_header, callback) {
 		custom_header.authentication.push({
 			'route': constants.admin.route,
 			'icon': constants.admin.icon,
@@ -299,18 +300,18 @@
 		callback(null, custom_header);
 	};
 
-	Facebook.deleteUserData = function(data, callback) {
+	Facebook.deleteUserData = function (data, callback) {
 		var uid = data.uid;
 
 		async.waterfall([
 			async.apply(user.getUserField, uid, 'fbid'),
-			function(oAuthIdToDelete, next) {
+			function (oAuthIdToDelete, next) {
 				db.deleteObjectField('fbid:uid', oAuthIdToDelete, next);
 			},
 			function (next) {
 				db.deleteObjectField('user:' + uid, 'fbid', next);
 			},
-		], function(err) {
+		], function (err) {
 			if (err) {
 				winston.error('[sso-facebook] Could not remove OAuthId data for uid ' + uid + '. Error: ' + err);
 				return callback(err);

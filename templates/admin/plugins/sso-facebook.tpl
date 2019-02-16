@@ -8,6 +8,17 @@
 					<a href="https://developers.facebook.com/apps/">Facebook Developers Page</a> and
 					then paste your application details here.
 				</p>
+				<ul>
+					<li>
+						You will need to enable <strong>"Client OAuth Login"</strong> and <strong>"Web OAuth Login"</strong>
+					from the "Facebook Login" product
+					</li>
+					<li>
+						You will need to paste <code>{baseUrl}/auth/facebook/callback</code> into the
+						<strong>"Valid OAuth Redirect URIs"</strong> field.
+					</li>
+				</ul>
+				</p>
 				<form role="form" class="sso-facebook-settings">
 					<div class="form-group">
 						<label for="app_id">Application ID</label>

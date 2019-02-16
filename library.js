@@ -29,7 +29,9 @@
 		var hostHelpers = require.main.require('./src/routes/helpers');
 
 		function render(req, res) {
-			res.render('admin/plugins/sso-facebook', {});
+			res.render('admin/plugins/sso-facebook', {
+				baseUrl: nconf.get('url'),
+			});
 		}
 
 		params.router.get('/admin/plugins/sso-facebook', params.middleware.admin.buildHeader, render);

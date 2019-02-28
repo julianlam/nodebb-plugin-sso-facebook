@@ -16,5 +16,14 @@
 	],
 	"acpScripts": [
 		"static/lib/admin.js"
-	]
+	],
+	"scripts": [
+		"static/lib/main.js"
+	],
+	"less": [
+		"static/less/style.less"
+	],
+	"staticDirs": {
+		"images": "static/images"
+	}
 }

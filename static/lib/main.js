@@ -14,7 +14,7 @@ define('sso-facebook/login', function () {
 		image.src = config.relative_path + '/plugins/nodebb-plugin-sso-facebook/images/f-ogo_RGB_HEX-58.svg';
 		replaceEl.replaceWith(replacement);
 		replacement.append(image);
-		$('<span>Continue with Facebook</span>').appendTo(replacement)
+		$('<span>Continue with Facebook</span>').appendTo(replacement);
 	}
 
 	return Login;

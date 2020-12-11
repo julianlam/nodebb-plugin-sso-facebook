@@ -238,10 +238,9 @@
 					user.setUserField(uid, 'fbid', fbid);
 					db.setObjectField('fbid:uid', fbid, uid);
 					var autoConfirm = Facebook.settings && Facebook.settings.autoconfirm === "on" ? 1 : 0;
-					user.setUserField(uid, 'email:confirmed', autoConfirm);
 
 					if (autoConfirm) {
-						db.sortedSetRemove('users:notvalidated', uid);
+						user.email.confirmByUid(uid);
 					}
 
 					// Save their photo, if present

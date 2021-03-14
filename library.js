@@ -144,7 +144,7 @@
 
 	Facebook.appendUserHashWhitelist = function (data, callback) {
 		data.whitelist.push('fbid');
-		return setImmediate(callback, null, data);
+		setImmediate(callback, null, data);
 	};
 
 	Facebook.getAssociation = function (data, callback) {

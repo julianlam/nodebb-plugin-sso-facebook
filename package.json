@@ -1,6 +1,6 @@
 {
   "name": "nodebb-plugin-sso-facebook",
-  "version": "3.6.6",
+  "version": "4.0.0",
   "description": "NodeBB Facebook SSO",
   "main": "library.js",
   "repository": {

@@ -1,8 +1,8 @@
 <div class="row">
-	<div class="col-xs-12">
-		<div class="panel panel-default">
-			<div class="panel-heading">Facebook Social Authentication</div>
-			<div class="panel-body">
+	<div class="col-12">
+		<div class="card">
+			<div class="card-header">Facebook Social Authentication</div>
+			<div class="card-body">
 				<p>
 					Create a <strong>Facebook Application</strong> via the
 					<a href="https://developers.facebook.com/apps/">Facebook Developers Page</a> and
@@ -20,27 +20,27 @@
 				</ul>
 				</p>
 				<form role="form" class="sso-facebook-settings">
-					<div class="form-group">
+					<div class="mb-3">
 						<label for="app_id">Application ID</label>
 						<input type="text" id="app_id" name="app_id" title="Application ID" class="form-control" placeholder="Application ID"><br />
 					</div>
-					<div class="form-group">
+					<div class="mb-3">
 						<label for="secret">Secret</label>
 						<input type="text" id="secret" name="secret" title="Secret" class="form-control" placeholder="Secret">
 					</div>
-					<div class="checkbox">
-						<label for="autoconfirm" class="mdl-switch mdl-js-switch mdl-js-ripple-effect">
-							<input type="checkbox" class="mdl-switch__input" id="autoconfirm" name="autoconfirm" />
-							<span class="mdl-switch__label">Skip email verification for people who register using SSO?</span>
+					<div class="form-check">
+						<input type="checkbox" class="form-check-input" id="autoconfirm" name="autoconfirm" />
+						<label for="autoconfirm" class="form-check-label">
+							Skip email verification for people who register using SSO?
 						</label>
 					</div>
-					<div class="checkbox">
-						<label for="disableRegistration" class="mdl-switch mdl-js-switch mdl-js-ripple-effect">
-							<input type="checkbox" class="mdl-switch__input" id="disableRegistration" name="disableRegistration" />
-							<span class="mdl-switch__label">Disable user registration via SSO</span>
+					<div class="form-check">
+						<input type="checkbox" class="form-check-input" id="disableRegistration" name="disableRegistration" />
+						<label for="disableRegistration" class="form-check-label">
+							Disable user registration via SSO
 						</label>
 					</div>
-					<p class="help-block">
+					<p class="form-text">
 						Restricting registration means that only registered users can associate their account with this SSO strategy.
 						This restriction is useful if you have users bypassing registration controls by using social media accounts, or
 						if you wish to use the NodeBB registration queue.

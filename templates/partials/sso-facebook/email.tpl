@@ -1,4 +1,4 @@
-<div class="form-group">
+<div class="mb-3">
 	<label for="email">Email Address</label>
 	<input type="email" id="email" name="email" class="form-control" />
 	<p class="help-block">

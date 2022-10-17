@@ -20,8 +20,8 @@
 	"scripts": [
 		"static/lib/main.js"
 	],
-	"less": [
-		"static/less/style.less"
+	"scss": [
+		"static/scss/style.scss"
 	],
 	"staticDirs": {
 		"images": "static/images"

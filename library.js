@@ -136,8 +136,8 @@
 				callbackURL: '/auth/facebook/callback',
 				icon: constants.admin.icon,
 				icons: {
-					normal: 'fa-facebook',
-					square: 'fa-facebook-square',
+					normal: 'fa-brands fa-facebook',
+					square: 'fa-brands fa-facebook-square',
 				},
 				labels: {
 					login: '[[social:log-in-with-facebook]]',

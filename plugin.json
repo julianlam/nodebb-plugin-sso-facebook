@@ -16,14 +16,5 @@
 	],
 	"modules": {
 		"../admin/plugins/sso-facebook.js": "static/lib/admin.js"
-	},
-	"scripts": [
-		"static/lib/main.js"
-	],
-	"scss": [
-		"static/scss/style.scss"
-	],
-	"staticDirs": {
-		"images": "static/images"
 	}
 }

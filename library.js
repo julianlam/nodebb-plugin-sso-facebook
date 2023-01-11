@@ -135,6 +135,15 @@
 				url: '/auth/facebook',
 				callbackURL: '/auth/facebook/callback',
 				icon: constants.admin.icon,
+				icons: {
+					normal: 'fa-facebook',
+					square: 'fa-facebook-square',
+				},
+				labels: {
+					login: '[[social:log-in-with-facebook]]',
+					register: '[[social:continue-with-facebook]]',
+				},
+				color: '#5165b2',
 				scope: 'public_profile, email'
 			});
 		}

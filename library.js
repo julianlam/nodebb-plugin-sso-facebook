@@ -227,6 +227,7 @@
 
 	Facebook.login = function (fbid, name, email, picture, accessToken, refreshToken, profile, callback) {
 		winston.verbose("Facebook.login fbid, name, email, picture: " + fbid + ", " + name + ", " + email + ", " + picture);
+		const autoConfirm = Facebook.settings && Facebook.settings.autoconfirm === "on" ? 1 : 0;
 
 		Facebook.getUidByFbid(fbid, function (err, uid) {
 			if (err) {
@@ -242,14 +243,14 @@
 				});
 			} else {
 				// New User
-				var success = function (uid) {
+				var success = async (uid) => {
 					// Save facebook-specific information to the user
 					user.setUserField(uid, 'fbid', fbid);
 					db.setObjectField('fbid:uid', fbid, uid);
-					var autoConfirm = Facebook.settings && Facebook.settings.autoconfirm === "on" ? 1 : 0;
 
 					if (autoConfirm) {
-						user.email.confirmByUid(uid);
+						await user.setUserField(uid, 'email', email);
+						await user.email.confirmByUid(uid);
 					}
 
 					// Save their photo, if present
@@ -276,7 +277,7 @@
 							return callback(new Error('[[error:sso-registration-disabled, Facebook]]'));
 						}
 
-						user.create({ username: name, email: email }, function (err, uid) {
+						user.create({ username: name, email: !autoConfirm ? email : undefined }, function (err, uid) {
 							if (err) {
 								return callback(err);
 							}

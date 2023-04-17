@@ -26,18 +26,15 @@
 	};
 
 	Facebook.init = function (params, callback) {
-		var hostHelpers = require.main.require('./src/routes/helpers');
+		const hostHelpers = require.main.require('./src/routes/helpers');
 
-		function render(req, res) {
+		hostHelpers.setupAdminPageRoute(params.router, '/admin/plugins/sso-facebook', function (req, res) {
 			res.render('admin/plugins/sso-facebook', {
 				baseUrl: nconf.get('url'),
 			});
-		}
+		});
 
-		params.router.get('/admin/plugins/sso-facebook', params.middleware.admin.buildHeader, render);
-		params.router.get('/api/admin/plugins/sso-facebook', render);
-
-		hostHelpers.setupPageRoute(params.router, '/deauth/facebook', params.middleware, [params.middleware.requireUser], function (req, res) {
+		hostHelpers.setupPageRoute(params.router, '/deauth/facebook', [params.middleware.requireUser], function (req, res) {
 			res.render('plugins/sso-facebook/deauth', {
 				service: "Facebook",
 			});

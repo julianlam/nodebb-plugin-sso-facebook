@@ -30,6 +30,7 @@
 
 		hostHelpers.setupAdminPageRoute(params.router, '/admin/plugins/sso-facebook', function (req, res) {
 			res.render('admin/plugins/sso-facebook', {
+				title: constants.name,
 				baseUrl: nconf.get('url'),
 			});
 		});

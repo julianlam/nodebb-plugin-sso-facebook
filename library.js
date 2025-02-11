@@ -206,9 +206,10 @@
 		async.waterfall([
 			// Reset email confirm throttle
 			async.apply(db.delete, 'uid:' + userData.uid + ':confirm:email:sent'),
-			async.apply(user.getUserField, userData.uid, 'email'),
+			function (next) {
+				user.getUserField(userData.uid, 'email', next);
+			},
 			function (email, next) {
-				// Remove the old email from sorted set reference
 				db.sortedSetRemove('email:uid', email, next);
 			},
 			async.apply(user.setUserField, userData.uid, 'email', data.email),
@@ -309,24 +310,13 @@
 		callback(null, custom_header);
 	};
 
-	Facebook.deleteUserData = function (data, callback) {
-		var uid = data.uid;
-
-		async.waterfall([
-			async.apply(user.getUserField, uid, 'fbid'),
-			function (oAuthIdToDelete, next) {
-				db.deleteObjectField('fbid:uid', oAuthIdToDelete, next);
-			},
-			function (next) {
-				db.deleteObjectField('user:' + uid, 'fbid', next);
-			},
-		], function (err) {
-			if (err) {
-				winston.error('[sso-facebook] Could not remove OAuthId data for uid ' + uid + '. Error: ' + err);
-				return callback(err);
-			}
-			callback(null, uid);
-		});
+	Facebook.deleteUserData = async function (data) {
+		const { uid } = data;
+		const fbid = await user.getUserField(uid, 'fbid');
+		if (fbid) {
+			await db.deleteObjectField('fbid:uid', oAuthIdToDelete);
+			await db.deleteObjectField('user:' + uid, 'fbid');
+		}
 	};
 
 	module.exports = Facebook;

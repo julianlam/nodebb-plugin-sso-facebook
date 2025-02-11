@@ -40,17 +40,12 @@
 				service: "Facebook",
 			});
 		});
-		params.router.post('/deauth/facebook', [params.middleware.requireUser, params.middleware.applyCSRF], function (req, res, next) {
-			Facebook.deleteUserData({
+		params.router.post('/deauth/facebook', [params.middleware.requireUser, params.middleware.applyCSRF], hostHelpers.tryRoute(async function (req, res, next) {
+			await Facebook.deleteUserData({
 				uid: req.user.uid,
-			}, function (err) {
-				if (err) {
-					return next(err);
-				}
-
-				res.redirect(nconf.get('relative_path') + '/me/edit');
 			});
-		});
+			res.redirect(nconf.get('relative_path') + '/me/edit');
+		}));
 
 		callback();
 	};

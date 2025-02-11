@@ -309,7 +309,7 @@
 		const { uid } = data;
 		const fbid = await user.getUserField(uid, 'fbid');
 		if (fbid) {
-			await db.deleteObjectField('fbid:uid', oAuthIdToDelete);
+			await db.deleteObjectField('fbid:uid', fbid);
 			await db.deleteObjectField('user:' + uid, 'fbid');
 		}
 	};

@@ -91,7 +91,11 @@ Facebook.getStrategy = async function (strategies) {
 						email = (profile.username ? profile.username : profile.id) + '@facebook.com';
 					}
 
-					const { uid } = await Facebook.login(profile.id, profile.displayName, email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', accessToken, refreshToken);
+					const { queued, uid, message } = await Facebook.login(req, profile.id, profile.displayName, email, 'https://graph.facebook.com/' + profile.id + '/picture?type=large', accessToken, refreshToken);
+
+					if (queued) {
+						return done(null, false, { message });
+					}
 
 					// Require collection of email
 					if (email.endsWith('@facebook.com')) {
@@ -186,30 +190,24 @@ Facebook.storeTokens = async function (uid, accessToken, refreshToken) {
 	});
 };
 
-Facebook.login = async function (fbid, name, email, picture, accessToken, refreshToken) {
+Facebook.login = async function (req, fbid, name, email, picture, accessToken, refreshToken) {
 	winston.verbose(`Facebook.login fbid, name, email, picture: ${fbid}, ${name}, ${email}, ${picture}`);
 	const autoConfirm = Facebook.settings && Facebook.settings.autoconfirm === 'on' ? 1 : 0;
 
 	let uid = await Facebook.getUidByFbid(fbid);
 
-	if (uid !== null) {
+	if (uid) {
 		// Existing User
 		await Facebook.storeTokens(uid, accessToken, refreshToken);
-
 		return { uid: uid };
 	}
-	// New User
+
 	const success = async (uid) => {
 		// Save facebook-specific information to the user
 		await Promise.all([
 			user.setUserField(uid, 'fbid', fbid),
 			db.setObjectField('fbid:uid', fbid, uid),
 		]);
-
-		if (autoConfirm) {
-			await user.setUserField(uid, 'email', email);
-			await user.email.confirmByUid(uid);
-		}
 
 		// Save their photo, if present
 		if (picture) {
@@ -232,9 +230,61 @@ Facebook.login = async function (fbid, name, email, picture, accessToken, refres
 	if (Facebook.settings.disableRegistration === 'on') {
 		throw new Error('[[error:sso-registration-disabled, Facebook]]');
 	}
-	uid = await user.create({ username: name, email: !autoConfirm ? email : undefined });
-	await success(uid);
-	return { uid };
+
+	return await user.createOrQueue(req, {
+		fbid,
+		picture,
+		username: name,
+		email,
+	}, {
+		emailVerification: autoConfirm ? 'verify' : 'send',
+	});
+};
+
+Facebook.addToApprovalQueue = async (hookData) => {
+	await saveFacebookSpecificData(hookData.data, hookData.userData);
+	return hookData;
+};
+
+Facebook.filterUserCreate = async (hookData) => {
+	await saveFacebookSpecificData(hookData.user, hookData.data);
+	return hookData;
+};
+
+async function saveFacebookSpecificData(targetObj, sourceObj) {
+	const { fbid, picture } = sourceObj;
+	if (fbid) {
+		const uid = await Facebook.getUidByFbid(fbid);
+		if (uid) {
+			throw new Error('[[error:sso-account-exists, Facebook]]');
+		}
+		targetObj.fbid = fbid;
+		if (picture) {
+			targetObj.picture = picture;
+			targetObj.uploadedpicture = picture;
+		}
+	}
+}
+
+Facebook.actionUserCreate = async (hookData) => {
+	const { uid } = hookData.user;
+	const fbid = await user.getUserField(uid, 'fbid');
+	if (fbid) {
+		await db.setObjectField('fbid:uid', fbid, uid);
+	}
+};
+
+Facebook.filterUserGetRegistrationQueue = async (hookData) => {
+	const { users } = hookData;
+	users.forEach((user) => {
+		if (user?.fbid) {
+			user.sso = {
+				icon: 'fa-brands fa-facebook',
+				name: constants.name,
+			};
+		}
+	});
+	return hookData;
 };
 
 Facebook.getUidByFbid = async function (fbid) {

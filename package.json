@@ -7,6 +7,9 @@
     "type": "git",
     "url": "https://github.com/julianlam/nodebb-plugin-sso-facebook"
   },
+  "scripts": {
+    "lint": "eslint ."
+  },
   "keywords": [
     "nodebb",
     "plugin",
@@ -27,6 +30,10 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "passport-facebook": "~1.0.2"
+  },
+  "devDependencies": {
+    "eslint": "10.0.2",
+    "eslint-config-nodebb": "^2.0.0"
   },
   "nbbpm": {
     "compatibility": "^4.0.0"

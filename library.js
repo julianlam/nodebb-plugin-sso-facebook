@@ -56,7 +56,7 @@ Facebook.getSettings = async function () {
 Facebook.getStrategy = async function (strategies) {
 	if (!Facebook.settings) {
 		await Facebook.getSettings();
-		return Facebook.getStrategy(strategies);
+		return await Facebook.getStrategy(strategies);
 	}
 
 	if (
@@ -128,6 +128,7 @@ Facebook.getStrategy = async function (strategies) {
 			scope: 'public_profile, email',
 		});
 	}
+	return strategies;
 };
 
 Facebook.appendUserHashWhitelist = function (data) {

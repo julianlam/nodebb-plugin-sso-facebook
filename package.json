@@ -32,8 +32,8 @@
     "passport-facebook": "~1.0.2"
   },
   "devDependencies": {
-    "eslint": "10.0.2",
-    "eslint-config-nodebb": "^2.0.0"
+    "eslint": "10.1.0",
+    "eslint-config-nodebb": "^2.0.1"
   },
   "nbbpm": {
     "compatibility": "^4.9.0"

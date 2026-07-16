@@ -1,14 +1,14 @@
 
 'use strict';
 
-const passport = require.main.require('passport');
+const passport = nodebb.require('passport');
 const passportFacebook = require('passport-facebook').Strategy;
-const nconf = require.main.require('nconf');
-const winston = require.main.require('winston');
+const nconf = nodebb.require('nconf');
+const winston = nodebb.require('winston');
 
-const user = require.main.require('./src/user');
-const meta = require.main.require('./src/meta');
-const db = require.main.require('./src/database');
+const user = nodebb.require('./src/user');
+const meta = nodebb.require('./src/meta');
+const db = nodebb.require('./src/database');
 
 const constants = Object.freeze({
 	'name': 'Facebook',
@@ -23,7 +23,7 @@ const Facebook = {
 };
 
 Facebook.init = async function (params) {
-	const hostHelpers = require.main.require('./src/routes/helpers');
+	const hostHelpers = nodebb.require('./src/routes/helpers');
 
 	hostHelpers.setupAdminPageRoute(params.router, '/admin/plugins/sso-facebook', function (req, res) {
 		res.render('admin/plugins/sso-facebook', {
@@ -295,9 +295,9 @@ Facebook.getUidByFbid = async function (fbid) {
 
 Facebook.addMenuItem = function (custom_header) {
 	custom_header.authentication.push({
-		'route': constants.admin.route,
-		'icon': constants.admin.icon,
-		'name': constants.name,
+		route: constants.admin.route,
+		icon: constants.admin.icon,
+		name: constants.name,
 	});
 	return custom_header;
 };
